@@ -29,7 +29,18 @@ export function EntryForm({ type }: { type: EntryType }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!valid) return;
+    if (!customerId) {
+      setError('Select or add a customer above, then click "Add" before saving.');
+      return;
+    }
+    if (!(Number(amount) > 0)) {
+      setError("Enter an amount greater than zero.");
+      return;
+    }
+    if (!recordedBy) {
+      setError("Select who's recording this before saving.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     try {
@@ -85,7 +96,10 @@ export function EntryForm({ type }: { type: EntryType }) {
               required
               className="w-full min-w-0 bg-transparent border-0 text-3xl font-bold text-primary placeholder:text-outline-variant outline-none"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                setError(null);
+              }}
               placeholder="0.00"
             />
           </div>
@@ -98,7 +112,13 @@ export function EntryForm({ type }: { type: EntryType }) {
                 Customer
               </label>
             </div>
-            <CustomerPicker value={customerId} onChange={setCustomerId} />
+            <CustomerPicker
+              value={customerId}
+              onChange={(id) => {
+                setCustomerId(id);
+                setError(null);
+              }}
+            />
           </div>
           <div>
             <div className="flex justify-between items-end mb-1.5">
@@ -106,7 +126,13 @@ export function EntryForm({ type }: { type: EntryType }) {
                 Recorded By
               </label>
             </div>
-            <RecordedByPicker value={recordedBy} onChange={setRecordedBy} />
+            <RecordedByPicker
+              value={recordedBy}
+              onChange={(name) => {
+                setRecordedBy(name);
+                setError(null);
+              }}
+            />
           </div>
         </div>
 
@@ -163,8 +189,10 @@ export function EntryForm({ type }: { type: EntryType }) {
 
         <button
           type="submit"
-          disabled={!valid || submitting}
-          className="w-full h-14 bg-primary text-on-primary font-semibold rounded-xl hover:shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+          disabled={submitting}
+          className={`w-full h-14 font-semibold rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 ${
+            valid ? "bg-primary text-on-primary hover:shadow-lg" : "bg-surface-container-high text-on-surface-variant"
+          }`}
         >
           <span>{submitting ? "Saving..." : type === "sale" ? "Save Sale" : "Save Payment"}</span>
           {!submitting && <Icon name="arrow_forward" className="text-lg" />}

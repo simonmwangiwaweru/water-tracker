@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAllCustomers } from "@/lib/hooks";
 import { addCustomer } from "@/lib/sync";
+import { Icon } from "./Icon";
 
 export function CustomerPicker({
   value,
@@ -50,26 +51,32 @@ export function CustomerPicker({
   }
 
   return (
-    <select
-      className="w-full h-12 rounded-lg border border-outline-variant bg-surface-container-low px-3 text-sm focus:ring-2 focus:ring-primary outline-none appearance-none"
-      value={value}
-      onChange={(e) => {
-        if (e.target.value === "__new__") {
-          setAdding(true);
-        } else {
-          onChange(e.target.value);
-        }
-      }}
-    >
-      <option value="" disabled>
-        Select a customer
-      </option>
-      {customers?.map((c) => (
-        <option key={c.id} value={c.id}>
-          {c.name}
+    <div className="relative">
+      <select
+        className="w-full h-12 rounded-lg border border-outline-variant bg-surface-container-low pl-3 pr-9 text-sm focus:ring-2 focus:ring-primary outline-none appearance-none"
+        value={value}
+        onChange={(e) => {
+          if (e.target.value === "__new__") {
+            setAdding(true);
+          } else {
+            onChange(e.target.value);
+          }
+        }}
+      >
+        <option value="" disabled>
+          Select a customer
         </option>
-      ))}
-      <option value="__new__">+ Add new customer...</option>
-    </select>
+        {customers?.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
+          </option>
+        ))}
+        <option value="__new__">+ Add new customer...</option>
+      </select>
+      <Icon
+        name="expand_more"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-outline text-xl pointer-events-none"
+      />
+    </div>
   );
 }

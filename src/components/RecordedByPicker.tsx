@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useFamilyMembers } from "@/lib/hooks";
 import { addFamilyMember } from "@/lib/sync";
+import { Icon } from "./Icon";
 
 export function RecordedByPicker({
   value,
@@ -50,26 +51,32 @@ export function RecordedByPicker({
   }
 
   return (
-    <select
-      className="w-full h-12 rounded-lg border border-outline-variant bg-surface-container-low px-3 text-sm focus:ring-2 focus:ring-primary outline-none appearance-none"
-      value={value}
-      onChange={(e) => {
-        if (e.target.value === "__new__") {
-          setAdding(true);
-        } else {
-          onChange(e.target.value);
-        }
-      }}
-    >
-      <option value="" disabled>
-        Who&apos;s logging this?
-      </option>
-      {members?.map((m) => (
-        <option key={m.id} value={m.name}>
-          {m.name}
+    <div className="relative">
+      <select
+        className="w-full h-12 rounded-lg border border-outline-variant bg-surface-container-low pl-3 pr-9 text-sm focus:ring-2 focus:ring-primary outline-none appearance-none"
+        value={value}
+        onChange={(e) => {
+          if (e.target.value === "__new__") {
+            setAdding(true);
+          } else {
+            onChange(e.target.value);
+          }
+        }}
+      >
+        <option value="" disabled>
+          Who&apos;s logging this?
         </option>
-      ))}
-      <option value="__new__">+ Add my name...</option>
-    </select>
+        {members?.map((m) => (
+          <option key={m.id} value={m.name}>
+            {m.name}
+          </option>
+        ))}
+        <option value="__new__">+ Add my name...</option>
+      </select>
+      <Icon
+        name="expand_more"
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-outline text-xl pointer-events-none"
+      />
+    </div>
   );
 }

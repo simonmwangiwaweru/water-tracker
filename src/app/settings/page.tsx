@@ -9,6 +9,7 @@ import {
   deleteFamilyMember,
   renameCustomer,
 } from "@/lib/sync";
+import { useToast } from "@/components/Toast";
 
 const rowClass =
   "bg-surface-container-lowest border border-outline-variant rounded-xl p-3.5 flex items-center justify-between shadow-sm";
@@ -29,6 +30,7 @@ export default function SettingsPage() {
 function FamilyMembersSection() {
   const members = useFamilyMembers();
   const [name, setName] = useState("");
+  const showToast = useToast();
 
   return (
     <section className="flex flex-col gap-2.5">
@@ -42,7 +44,10 @@ function FamilyMembersSection() {
           <button
             className="text-sm font-semibold text-error"
             onClick={() => {
-              if (confirm(`Remove ${m.name}?`)) deleteFamilyMember(m.id);
+              if (confirm(`Remove ${m.name}?`)) {
+                deleteFamilyMember(m.id);
+                showToast(`${m.name} removed`);
+              }
             }}
           >
             Remove
@@ -55,6 +60,7 @@ function FamilyMembersSection() {
           e.preventDefault();
           if (!name.trim()) return;
           await addFamilyMember(name.trim());
+          showToast(`${name.trim()} added`);
           setName("");
         }}
       >
@@ -75,6 +81,7 @@ function CustomersSection() {
   const [name, setName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  const showToast = useToast();
 
   return (
     <section className="flex flex-col gap-2.5">
@@ -91,7 +98,10 @@ function CustomersSection() {
             <button
               className="text-sm font-semibold text-primary"
               onClick={async () => {
-                if (editingName.trim()) await renameCustomer(c.id, editingName.trim());
+                if (editingName.trim()) {
+                  await renameCustomer(c.id, editingName.trim());
+                  showToast(`Renamed to ${editingName.trim()}`);
+                }
                 setEditingId(null);
               }}
             >
@@ -119,6 +129,7 @@ function CustomersSection() {
                 onClick={() => {
                   if (confirm(`Delete ${c.name} and all their entries? This can't be undone.`)) {
                     deleteCustomer(c.id);
+                    showToast(`${c.name} deleted`);
                   }
                 }}
               >
@@ -134,6 +145,7 @@ function CustomersSection() {
           e.preventDefault();
           if (!name.trim()) return;
           await addCustomer({ name: name.trim(), phone: null });
+          showToast(`${name.trim()} added`);
           setName("");
         }}
       >

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { startBackgroundSync } from "@/lib/sync";
+import { ToastProvider } from "@/components/Toast";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -18,5 +19,5 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     return stop;
   }, []);
 
-  return <>{children}</>;
+  return <ToastProvider>{children}</ToastProvider>;
 }

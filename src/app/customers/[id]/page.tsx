@@ -2,9 +2,12 @@
 
 import { use } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCustomer, useCustomerEntries } from "@/lib/hooks";
 import { formatDate, formatMoney } from "@/lib/format";
 import { Icon } from "@/components/Icon";
+import { useToast } from "@/components/Toast";
+import { deleteCustomer } from "@/lib/sync";
 
 export default function CustomerDetailPage({
   params,
@@ -12,6 +15,8 @@ export default function CustomerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
+  const showToast = useToast();
   const customer = useCustomer(id);
   const entries = useCustomerEntries(id);
 
@@ -20,13 +25,30 @@ export default function CustomerDetailPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <Link
-        href="/"
-        className="flex items-center gap-1.5 text-sm text-on-surface-variant hover:text-primary transition-colors w-fit"
-      >
-        <Icon name="arrow_back" className="text-lg" />
-        All customers
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 text-sm text-on-surface-variant hover:text-primary transition-colors w-fit"
+        >
+          <Icon name="arrow_back" className="text-lg" />
+          All customers
+        </Link>
+        {customer && (
+          <button
+            className="flex items-center gap-1.5 text-sm font-semibold text-error"
+            onClick={() => {
+              if (confirm(`Delete ${customer.name} and all their entries? This can't be undone.`)) {
+                deleteCustomer(id);
+                showToast(`${customer.name} deleted`);
+                router.push("/");
+              }
+            }}
+          >
+            <Icon name="delete" className="text-lg" />
+            Delete
+          </button>
+        )}
+      </div>
 
       {customer === undefined && <p className="text-on-surface-variant text-sm">Loading...</p>}
       {customer === null && <p className="text-on-surface-variant text-sm">Customer not found.</p>}

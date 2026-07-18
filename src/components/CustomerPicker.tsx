@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAllCustomers } from "@/lib/hooks";
 import { addCustomer } from "@/lib/sync";
 import { Icon } from "./Icon";
+import { useToast } from "./Toast";
 
 export function CustomerPicker({
   value,
@@ -15,6 +16,7 @@ export function CustomerPicker({
   const customers = useAllCustomers();
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
+  const showToast = useToast();
 
   if (adding) {
     return (
@@ -35,6 +37,7 @@ export function CustomerPicker({
             onChange(customer.id);
             setAdding(false);
             setNewName("");
+            showToast(`${customer.name} added`);
           }}
         >
           Add

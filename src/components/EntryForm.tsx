@@ -21,6 +21,7 @@ export function EntryForm({ type }: { type: EntryType }) {
   const [date, setDate] = useState(todayIso());
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const valid = customerId && Number(amount) > 0 && recordedBy;
 
@@ -28,6 +29,7 @@ export function EntryForm({ type }: { type: EntryType }) {
     e.preventDefault();
     if (!valid) return;
     setSubmitting(true);
+    setError(null);
     try {
       await addEntry({
         client_id: crypto.randomUUID(),
@@ -40,6 +42,8 @@ export function EntryForm({ type }: { type: EntryType }) {
         entry_date: date,
       });
       router.push(`/customers/${customerId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong saving this entry.");
     } finally {
       setSubmitting(false);
     }
@@ -149,6 +153,10 @@ export function EntryForm({ type }: { type: EntryType }) {
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
+
+        {error && (
+          <p className="text-sm text-error bg-error-container/50 rounded-lg px-3 py-2">{error}</p>
+        )}
 
         <button
           type="submit"

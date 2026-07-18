@@ -78,7 +78,9 @@ export async function addEntry(entry: NewEntry) {
     pending: true,
   };
   await db.entries.put(localRow);
-  await syncNow();
+  // Fire-and-forget: the entry is already safe in Dexie, so a slow or failed
+  // background sync must never block the caller (e.g. form navigation).
+  syncNow().catch((err) => console.error("Background sync failed after addEntry", err));
 }
 
 export async function addCustomer(customer: Omit<Customer, "id" | "created_at">) {

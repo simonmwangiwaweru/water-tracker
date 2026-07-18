@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFamilyMembers } from "@/lib/hooks";
 import { addFamilyMember } from "@/lib/sync";
 import { Icon } from "./Icon";
+import { useToast } from "./Toast";
 
 export function RecordedByPicker({
   value,
@@ -15,37 +16,50 @@ export function RecordedByPicker({
   const members = useFamilyMembers();
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
+  const showToast = useToast();
 
   if (adding) {
+    const submitNewMember = async () => {
+      if (!newName.trim()) return;
+      const member = await addFamilyMember(newName.trim());
+      onChange(member.name);
+      setAdding(false);
+      setNewName("");
+      showToast(`${member.name} added`);
+    };
+
     return (
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <input
           autoFocus
-          className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+          className="w-full rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
           placeholder="Your name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-        />
-        <button
-          type="button"
-          className="rounded-lg bg-primary text-on-primary px-3 py-2.5 text-sm font-semibold disabled:opacity-50"
-          disabled={!newName.trim()}
-          onClick={async () => {
-            const member = await addFamilyMember(newName.trim());
-            onChange(member.name);
-            setAdding(false);
-            setNewName("");
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submitNewMember();
+            }
           }}
-        >
-          Add
-        </button>
-        <button
-          type="button"
-          className="rounded-lg border border-outline-variant px-3 py-2.5 text-sm text-on-surface-variant"
-          onClick={() => setAdding(false)}
-        >
-          Cancel
-        </button>
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="flex-1 rounded-lg bg-primary text-on-primary px-3 py-2.5 text-sm font-semibold disabled:opacity-50"
+            disabled={!newName.trim()}
+            onClick={submitNewMember}
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            className="flex-1 rounded-lg border border-outline-variant px-3 py-2.5 text-sm text-on-surface-variant"
+            onClick={() => setAdding(false)}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     );
   }

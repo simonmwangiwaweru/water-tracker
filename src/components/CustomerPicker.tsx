@@ -19,36 +19,47 @@ export function CustomerPicker({
   const showToast = useToast();
 
   if (adding) {
+    const submitNewCustomer = async () => {
+      if (!newName.trim()) return;
+      const customer = await addCustomer({ name: newName.trim(), phone: null });
+      onChange(customer.id);
+      setAdding(false);
+      setNewName("");
+      showToast(`${customer.name} added`);
+    };
+
     return (
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2">
         <input
           autoFocus
-          className="flex-1 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
+          className="w-full rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none"
           placeholder="Customer name"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
-        />
-        <button
-          type="button"
-          className="rounded-lg bg-primary text-on-primary px-3 py-2.5 text-sm font-semibold disabled:opacity-50"
-          disabled={!newName.trim()}
-          onClick={async () => {
-            const customer = await addCustomer({ name: newName.trim(), phone: null });
-            onChange(customer.id);
-            setAdding(false);
-            setNewName("");
-            showToast(`${customer.name} added`);
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              submitNewCustomer();
+            }
           }}
-        >
-          Add
-        </button>
-        <button
-          type="button"
-          className="rounded-lg border border-outline-variant px-3 py-2.5 text-sm text-on-surface-variant"
-          onClick={() => setAdding(false)}
-        >
-          Cancel
-        </button>
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="flex-1 rounded-lg bg-primary text-on-primary px-3 py-2.5 text-sm font-semibold disabled:opacity-50"
+            disabled={!newName.trim()}
+            onClick={submitNewCustomer}
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            className="flex-1 rounded-lg border border-outline-variant px-3 py-2.5 text-sm text-on-surface-variant"
+            onClick={() => setAdding(false)}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     );
   }

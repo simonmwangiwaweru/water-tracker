@@ -8,11 +8,13 @@ import { addEntry } from "@/lib/sync";
 import { todayIso } from "@/lib/format";
 import { CURRENCY_SYMBOL } from "@/lib/config";
 import { Icon } from "./Icon";
+import { useToast } from "./Toast";
 import type { EntryType } from "@/lib/types";
 
 export function EntryForm({ type }: { type: EntryType }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const showToast = useToast();
 
   const [customerId, setCustomerId] = useState(searchParams.get("customer") ?? "");
   const [amount, setAmount] = useState("");
@@ -41,6 +43,7 @@ export function EntryForm({ type }: { type: EntryType }) {
         note: note.trim() || null,
         entry_date: date,
       });
+      showToast(type === "sale" ? "Sale saved successfully" : "Payment saved successfully");
       router.push(`/customers/${customerId}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong saving this entry.");
@@ -69,8 +72,8 @@ export function EntryForm({ type }: { type: EntryType }) {
           <label className={label} htmlFor="amount">
             Amount
           </label>
-          <div className="relative flex items-center">
-            <span className="absolute left-0 text-3xl font-bold text-on-surface-variant/40">
+          <div className="flex items-baseline gap-1.5 border-b border-outline-variant py-2 focus-within:border-primary transition-all">
+            <span className="shrink-0 text-3xl font-bold text-on-surface-variant/40">
               {CURRENCY_SYMBOL}
             </span>
             <input
@@ -80,7 +83,7 @@ export function EntryForm({ type }: { type: EntryType }) {
               min="0"
               step="0.01"
               required
-              className="w-full bg-transparent border-0 border-b border-outline-variant py-2 pl-7 text-3xl font-bold text-primary placeholder:text-outline-variant focus:border-primary outline-none transition-all"
+              className="w-full min-w-0 bg-transparent border-0 text-3xl font-bold text-primary placeholder:text-outline-variant outline-none"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0.00"

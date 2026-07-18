@@ -19,13 +19,32 @@ export async function pullAll() {
   }
 
   await db.transaction("rw", db.customers, db.familyMembers, db.entries, async () => {
-    if (customers) await db.customers.bulkPut(customers);
-    if (familyMembers) await db.familyMembers.bulkPut(familyMembers);
+    if (customers) {
+      await db.customers.bulkPut(customers);
+      const serverIds = new Set(customers.map((c) => c.id));
+      const staleIds = (await db.customers.toArray()).map((c) => c.id).filter((id) => !serverIds.has(id));
+      if (staleIds.length) await db.customers.bulkDelete(staleIds);
+    }
+    if (familyMembers) {
+      await db.familyMembers.bulkPut(familyMembers);
+      const serverIds = new Set(familyMembers.map((m) => m.id));
+      const staleIds = (await db.familyMembers.toArray()).map((m) => m.id).filter((id) => !serverIds.has(id));
+      if (staleIds.length) await db.familyMembers.bulkDelete(staleIds);
+    }
     if (entries) {
       // Don't clobber rows still waiting to be pushed.
       const pendingIds = new Set((await db.entries.filter((e) => !!e.pending).toArray()).map((e) => e.id));
       const toPut = entries.filter((e) => !pendingIds.has(e.id));
       await db.entries.bulkPut(toPut);
+
+      // Anything local that's neither pending nor present on the server was
+      // deleted remotely (directly, or via a cascaded customer delete) —
+      // remove it here too so deletes actually propagate across devices.
+      const serverIds = new Set(entries.map((e) => e.id));
+      const staleIds = (await db.entries.toArray())
+        .map((e) => e.id)
+        .filter((id) => !serverIds.has(id) && !pendingIds.has(id));
+      if (staleIds.length) await db.entries.bulkDelete(staleIds);
     }
   });
 }

@@ -25,7 +25,6 @@ export function useCustomersWithBalances() {
       let balance = 0;
       let lastEntryDate: string | null = null;
       let oldestUnpaidDate: string | null = null;
-      let running = 0;
 
       for (const e of customerEntries) {
         balance += e.type === "sale" ? e.amount : -e.amount;
@@ -69,7 +68,9 @@ export function useCustomersWithBalances() {
 }
 
 export function useCustomer(customerId: string) {
-  return useLiveQuery(() => db.customers.get(customerId), [customerId]);
+  const customers = useAllCustomers();
+  if (customers === undefined) return undefined; // still loading
+  return customers.find((c) => c.id === customerId) ?? null; // null = not found
 }
 
 export function useCustomerEntries(customerId: string) {

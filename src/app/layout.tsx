@@ -1,15 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "./providers";
+import { Header } from "@/components/Header";
+import { BottomNav } from "@/components/BottomNav";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -32,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0e74ca",
+  themeColor: "#fcf8fa",
 };
 
 export default function RootLayout({
@@ -41,12 +38,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
-        <AppProviders>{children}</AppProviders>
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+      />
+      <body className="min-h-full flex flex-col bg-background text-on-background font-sans">
+        <AppProviders>
+          <Header />
+          <main className="flex-1 max-w-2xl w-full mx-auto px-4 py-4 pb-24 md:pb-4">
+            {children}
+          </main>
+          <BottomNav />
+        </AppProviders>
       </body>
     </html>
   );
